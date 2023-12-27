@@ -13,7 +13,7 @@
   <h1>KU-COMSCI EXAM BOOKING</h1>
   <input type="text" value="" placeholder="Username" id="username" />
   <input type="password" value="" placeholder="Password" id="password" />
-  <button>Login</button>
+  <button v-on:click.prevent="submitform">Login</button>
 </div>
 </body>
 
@@ -24,6 +24,11 @@
     data: () => ({
       visible: false,
     }),
+    methods: {
+      submitform() {
+        console.log("1234567895")
+      }
+    }
   }
 </script>
 <style>
