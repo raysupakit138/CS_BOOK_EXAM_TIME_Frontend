@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import BookingCalendar from '../views/BookingCalendar.vue'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
+import SignUpView from '../views/SignUpView.vue'
 
 
 const router = createRouter({
@@ -21,6 +22,11 @@ const router = createRouter({
       path: '/BookingCalendar',
       name: 'BookingCalendar',
       component: BookingCalendar
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: SignUpView
     },
     {
       path: '/about',
