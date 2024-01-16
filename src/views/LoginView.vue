@@ -10,26 +10,100 @@
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet'>
 <div class="logo"></div>
 <div class="login-block">
-  <h1>KU-COMSCI EXAM BOOKING</h1>
-  <input type="text" value="" placeholder="Username" id="username" />
-  <input type="password" value="" placeholder="Password" id="password" />
-  <button v-on:click.prevent="submitform">Login</button>
+  <form v-on:submit.prevent="submitform">
+    <h1>KU-COMSCI EXAM BOOKING</h1>
+    <input type="text" value="" placeholder="Username" id="username" v-model=loginform.username>
+    <input type="password" value="" placeholder="Password" id="password" v-model=loginform.password>
+   <button v-on:click.prevent="submitform">Login</button>
+  </form>
+  <router-link to="/ChangePassword">
+    <button>Change Password</button>
+  </router-link>
+
 </div>
 </body>
 
 
 </template>
 <script>
+import { useUserStore } from '@/stores/user'
+import axios from 'axios'
+import Swal from 'sweetalert2';
+
   export default {
+    setup() {
+      const userStore = useUserStore()
+      return {
+          userStore
+      }
+  },
     data: () => ({
-      visible: false,
+      loginform : {
+        username : '',
+        password : ''
+      },
+      errors: []
     }),
     methods: {
-      submitform() {
-        console.log("1234567895")
-      }
+      async submitform() {
+        this.errors = []
+        //check error
+        if (this.loginform.username === '') {
+          this.errors.push('โปรดกรอก username')
+          this.showErrorAlert('Please fill in username');
+        }
+        if (this.loginform.password === '') {
+          this.errors.push('โปรดกรอก password')
+          this.showErrorAlert('Please fill in password');
+        }
+        console.log(this.errors)
+        console.log(this.loginform.username , this.loginform.password)
+        if (this.errors.length === 0){
+           // send data to backend
+         await axios
+              .post('/api/login/', this.loginform)
+              .then(response => {
+                this.userStore.setToken(response.data)
+                axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.access;
+
+              })
+              .catch(error => {
+                console.log('error', error)   //ใช้กรณีส่งข้อมูลไม่ถึงหลังบ้าน
+              })
+        }
+        else {
+          console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')
+        }
+        if (this.errors.length === 0){
+         await axios
+              .get('/api/userInfo/')
+              .then(response => {
+                this.userStore.setUserInfo(response.data)
+                this.$router.push('/test')
+              })
+              .catch(error => {
+                console.log('error', error)   //ใช้กรณีส่งข้อมูลไม่ถึงหลังบ้าน
+              });   
+        }         
+      },
+      showErrorAlert(message) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: message,
+              confirmButtonColor: '#d33', 
+              confirmButtonText: 'OK',
+              customClass: {
+                title: 'error-title', 
+                content: 'error-content', 
+                confirmButton: 'error-confirm-button', 
+              },
+            });
+          },
+      
     }
   }
+  
 </script>
 <style>
 body {
@@ -40,7 +114,7 @@ body {
 
 .logo {
     width: 213px;
-    height: 36px;
+    height: 5px;
     margin: 56px auto;
 }
 
@@ -114,5 +188,20 @@ body {
     background: #000000;
 }
 
+.login-block form {
+  display: flex;
+  flex-direction: column;
+}
 
+.login-block button {
+  margin-top: 20px; /* Add space between Login and Change Password buttons */
+}
+
+.change-password-button {
+  margin-top: 20px; /* Change the color to fit your design */
+}
+
+.change-password-button:hover {
+  background: #1967d2; /* Change the hover color to fit your design */
+}
 </style>

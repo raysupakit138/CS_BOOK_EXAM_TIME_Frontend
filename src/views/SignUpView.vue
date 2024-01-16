@@ -11,7 +11,9 @@
       <input type="text" value="" placeholder="Email" id="email" v-model="signupForm.email">
       <input type="password" value="" placeholder="Password" id="password" v-model="signupForm.password1">
       <input type="password" value="" placeholder="Confirm Password" id="confirmpassword" v-model="signupForm.password2">
-      <select class="role-dropdown" v-model="signupForm.role" >
+      <select class="role-dropdown" v-model="signupForm.role">
+    
+    
         <option value="student">Student</option>
         <option value="teacher">Teacher</option>   
       </select>
@@ -23,7 +25,10 @@
 </template>
 
 <script>
+
 import axios from 'axios'
+import Swal from 'sweetalert2';
+
   export default {
     data: () => ({
       visible: false,
@@ -42,33 +47,42 @@ import axios from 'axios'
       submitform(){
         this.errors = []
         // check error
-        if (this.firstname === '') {
+        if (this.signupForm.firstname === '') {
           this.errors.push('ต้องกรอก firstname')
+          this.showErrorAlert('Please fill out the information completely.');
         }
-        if (this.lastname === '' ){
+        if (this.signupForm.lastname === '' ){
           this.errors.push('ต้องกรอก lastname')
+          this.showErrorAlert('Please fill out the information completely.');
         }
-        if (this.username === '' ){
+        if (this.signupForm.username === '' ){
           this.errors.push('ต้องกรอก username')
+          this.showErrorAlert('Please fill out the information completely.');
         }
-        if (this.email === '' ){
+        if (this.signupForm.email === '' ){
           this.errors.push('ต้องกรอก email')
+          this.showErrorAlert('Please fill out the information completely.');
         }
-        if (this.password1 === ''){
+        if (this.signupForm.password1 === ''){
           this.errors.push('ต้องกรอก password')
+          this.showErrorAlert('Please fill out the information completely.');
         }
-        if (this.password2 === ''){
+        if (this.signupForm.password2 === ''){
           this.errors.push('ต้องกรอก confirm password')
+          this.showErrorAlert('Please fill out the information completely.');
         }
-        if (this.password1 !== this.password2){
+        if (this.signupForm.password1 !== this.signupForm.password2){
           this.errors.push('password ไม่ตรงกัน')
+          this.showErrorAlert('Password Do not match');
         }
-        if (this.role === ''){
+        if (this.signupForm.role === ''){
           this.errors.push('โปรดระบุ role')
+          this.showErrorAlert('Please fill out the information completely.');
         }
         console.log(this.errors)
-        // send data to backend
-        axios
+        if (this.errors.length === 0){
+           // send data to backend
+          axios
               .post('/api/signup/', this.signupForm)
               .then(response => {
                 if (response.data.message === 'success') {
@@ -79,6 +93,7 @@ import axios from 'axios'
                   this.signupForm.password1 = ''
                   this.signupForm.password2 = ''
                   this.signupForm.role = ''
+                  
                 }else {
                   console.log(response.data.message)
                 }
@@ -87,9 +102,31 @@ import axios from 'axios'
               .catch(error => {
                 console.log('error', error)
               })
+        }
+        else {
+          console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')
+        }
+        
+       
         console.log('12345') 
-        console.log(this.firstname,this.lastname,this.username,this.role,this.email,this.password1,this.password2)
+        console.log(
+          this.signupForm.firstname,this.signupForm.lastname,this.signupForm.username,
+          this.signupForm.role,this.signupForm.email,this.signupForm.password1,this.signupForm.password2)
       },
+      showErrorAlert(message) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: message,
+              confirmButtonColor: '#d33', 
+              confirmButtonText: 'OK',
+              customClass: {
+                title: 'error-title', 
+                content: 'error-content', 
+                confirmButton: 'error-confirm-button', 
+              },
+            });
+          },
       test1(){
         console.log("testttttttttt")
       }
@@ -101,80 +138,52 @@ import axios from 'axios'
 body {
     background: url('https://iad.intaff.ku.ac.th/attach/w51119/f20220315140619_76Xumee31D.jpg') no-repeat fixed center center;
     background-size: cover;
-    font-family: Montserrat;
+    font-family: 'Montserrat', sans-serif;
 }
 
-.space1 {
-    width: 2px;
-    height: 2px;
-    margin: 6px auto;
+.space1,
+.space2 {
+    width: 100%;
+    height: 10px;
 }
 
 .signup-block {
-    width: 400px;
-    padding: 50px;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
     background: #fff;
     border-radius: 20px;
-    border-top: 5px solid #0d5302;
-    border-bottom: 5px solid #0d5302;
-    border-left: 5px solid #0d5302;
-    border-right: 5px solid #0d5302;
-    margin: 0 auto;
+    border: 5px solid #0d5302;
 }
 
 .signup-block h1 {
     text-align: center;
     color: #000;
-    font-size: 18px;
+    font-size: 24px;
     text-transform: uppercase;
     margin-top: 0;
     margin-bottom: 20px;
 }
 
-.signup-block input {
+.signup-block input,
+.signup-block select {
     width: 100%;
-    height: 42px;
+    height: 40px;
     box-sizing: border-box;
     border-radius: 20px;
     border: 1px solid #ccc;
     margin-bottom: 20px;
     font-size: 14px;
-    font-family: Montserrat;
-    padding: 0 20px 0 50px;
+    padding: 0 20px;
     outline: none;
 }
 
-.signup-block input#firstname {
-    background: #fff url('http://i.imgur.com/u0XmBmv.png') 20px top no-repeat;
-    background-size: 16px 80px;
+.signup-block select {
+    background: #fff;
 }
 
-.signup-block input#lastname {
-    background: #fff url('http://i.imgur.com/u0XmBmv.png') 20px top no-repeat;
-    background-size: 16px 80px;
-}
-
-.signup-block input#username {
-    background: #fff url('http://i.imgur.com/u0XmBmv.png') 20px top no-repeat;
-    background-size: 16px 80px;
-}
-
-.signup-block input#email {
-    background: #fff url('http://i.imgur.com/u0XmBmv.png') 20px top no-repeat;
-    background-size: 16px 80px;
-}
-
-.signup-block input#password {
-    background: #fff url('http://i.imgur.com/Qf83FTt.png') 20px top no-repeat;
-    background-size: 16px 80px;
-}
-
-.signup-block input#confirmpassword {
-    background: #fff url('http://i.imgur.com/Qf83FTt.png') 20px top no-repeat;
-    background-size: 16px 80px;
-}
-
-.signup-block input:active, .signup-block input:focus {
+.signup-block input:focus,
+.signup-block select:focus {
     border: 1px solid #0d5302;
 }
 
@@ -182,39 +191,35 @@ body {
     width: 100%;
     height: 40px;
     background: #0d5302;
-    box-sizing: border-box;
-    border-radius: 20px;
-    border: 1px solid #000000;
+    border: 1px solid #000;
     color: #fff;
     font-weight: bold;
     text-transform: uppercase;
     font-size: 14px;
-    font-family: Montserrat;
+    border-radius: 20px;
     outline: none;
     cursor: pointer;
 }
 
-.signup-block  button:hover {
-    background: #000000;
+.signup-block button:hover {
+    background: #000;
 }
 
-.space2 {
-    width: 2px;
-    height: 2px;
-    margin: 6px auto;
-}
+.error-title {
+        color: #ff0000; 
+        font-size: 20px; 
+        font-weight: bold; 
+      }
 
-.role-dropdown {
-  width: 100%;
-  height: 42px;
-  box-sizing: border-box;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  margin-bottom: 20px;
-  font-size: 14px;
-  font-family: Montserrat;
-  padding: 0 20px;
-  outline: none;
-}
+      .error-content {
+        color: #333333; 
+        font-size: 16px; 
+      }
+
+      .error-confirm-button {
+        background-color: #d33 !important; 
+        color: #ffffff !important; 
+        border: 1px solid #d33 !important; 
+      }
 
 </style>
