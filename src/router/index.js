@@ -5,6 +5,9 @@ import SignUpView from '../views/SignUpView.vue'
 import TestView from '../views/TestView.vue'
 import AdminView from '../views/AdminView.vue'
 import ChangePassword from '../views/ChangePassword.vue'
+import ViewUsers from '../views/ViewUsers.vue'
+import Calendar from '../views/Calendar.vue'
+import AddSubject from '../views/AddSubject.vue'
 
 
 const router = createRouter({
@@ -39,6 +42,21 @@ const router = createRouter({
       path: '/ChangePassword',
       name: 'ChangePassword',
       component: ChangePassword
+    },
+    {
+      path : '/ViewUsers',
+      name : 'ViewUsers',
+      component: ViewUsers
+    },
+    {
+      path : '/Calendar',
+      name : 'Calendar',
+      component : Calendar
+    },
+    {
+      path : '/AddSubject',
+      name : 'AddSubject',
+      component : AddSubject
     },
     {
       path: '/about',

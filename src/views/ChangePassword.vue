@@ -1,14 +1,13 @@
 <template>
-  ิ<body>
+  <body>
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet'>
     <div class="space1"></div>
     <div class="ChangePasswordBlock">
       <form v-on:submit.prevent="changePassword">
         <h1>Reset Password</h1> 
-        <input type="text" value="" placeholder="Username" id="username">
-        <input type="password" value="" placeholder="Old Password" id="oldpassword">
-        <input type="password" value="" placeholder="New Password" id="newpassword">
-        <input type="password" value="" placeholder="Confirm New Password" id="confirmnewpassword">
+        <input v-model="form.old_password" type="password"  placeholder="Old Password">
+        <input v-model="form.new_password1" type="password"  placeholder="New Password" >
+        <input v-model="form.new_password2" type="password"  placeholder="Confirm New Password" >
       <button>Confirm</button>   
       </form>
     </div>  
@@ -17,19 +16,73 @@
   </template>
 
 <script>
+import axios from 'axios'
+import Swal from 'sweetalert2';
 export default {
   data() {
     return {
-      username: "",
-      oldPassword: "",
-      newPassword: "",
+      form: {
+        old_password: "",
+        new_password1: "",
+        new_password2: "",
+      },
+      errors: [],
     };
   },
   methods: {
     changePassword() {
-      // Handle password change logic here
-      // You can make an API call to the server to update the password
-      // Use this.username, this.oldPassword, this.newPassword to get the values
+      this.errors = []
+
+      if (this.form.new_password1 !== this.form.new_password2) {
+          this.errors.push('The password does not match')
+          this.showErrorAlert('The password does not match');
+          console.log(this.errors)
+      }
+
+      if (this.errors.length === 0) {
+          let formData = new FormData()
+          formData.append('old_password', this.form.old_password)
+          formData.append('new_password1', this.form.new_password1)
+          formData.append('new_password2', this.form.new_password2)
+
+          axios
+              .post('/api/changePassword/', formData, {
+                  headers: {
+                      "Content-Type": "multipart/form-data",
+                  }
+              })
+              .then(response => {
+                  if (response.data.message === 'success') {
+                      
+                      console.log('Changed Password Success')
+
+                      //redirect to new page
+                  } else {
+                      const data = JSON.parse(response.data.message)
+
+                      for (const key in data){
+                          this.errors.push(data[key][0].message)
+                      }
+                  }
+              })
+              .catch(error => {
+                  console.log('error', error)
+              })
+      }
+    },
+    showErrorAlert(message) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message,
+        confirmButtonColor: '#d33', 
+        confirmButtonText: 'OK',
+        customClass: {
+          title: 'error-title', 
+          content: 'error-content', 
+          confirmButton: 'error-confirm-button', 
+        },
+      });
     },
   },
 };
@@ -45,7 +98,7 @@ body {
 .space1,
 .space2 {
     width: 100%;
-    height: 80px;
+    height: 130px;
 }
 
 .ChangePasswordBlock {
@@ -64,6 +117,7 @@ body {
     text-transform: uppercase;
     margin-top: 0;
     margin-bottom: 20px;
+    font-weight: bold;
 }
 
 .ChangePasswordBlock input,

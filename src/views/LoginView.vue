@@ -16,9 +16,6 @@
     <input type="password" value="" placeholder="Password" id="password" v-model=loginform.password>
    <button v-on:click.prevent="submitform">Login</button>
   </form>
-  <router-link to="/ChangePassword">
-    <button>Change Password</button>
-  </router-link>
 
 </div>
 </body>
@@ -28,7 +25,7 @@
 <script>
 import { useUserStore } from '@/stores/user'
 import axios from 'axios'
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'
 
   export default {
     setup() {
@@ -42,7 +39,9 @@ import Swal from 'sweetalert2';
         username : '',
         password : ''
       },
-      errors: []
+      errors: [],
+      token: '',
+      role: ''
     }),
     methods: {
       async submitform() {
@@ -65,7 +64,8 @@ import Swal from 'sweetalert2';
               .then(response => {
                 this.userStore.setToken(response.data)
                 axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.access;
-
+                this.token = response.data.access
+                console.log('1' + this.token)
               })
               .catch(error => {
                 console.log('error', error)   //ใช้กรณีส่งข้อมูลไม่ถึงหลังบ้าน
@@ -79,12 +79,26 @@ import Swal from 'sweetalert2';
               .get('/api/userInfo/')
               .then(response => {
                 this.userStore.setUserInfo(response.data)
-                this.$router.push('/test')
+                console.log('2' + this.token)
+                if(this.token){
+                  this.role = response.data.role
+                  console.log('85' + this.role)
+                  if(this.role === 'admin'){
+                    this.$router.push('/admin')            
+                  }
+                  if(this.role === 'student'){
+                    this.$router.push('/test')
+                  }
+                  if(this.role === 'teacher'){
+                    this.$router.push('/test')
+                  }
+                }
               })
               .catch(error => {
                 console.log('error', error)   //ใช้กรณีส่งข้อมูลไม่ถึงหลังบ้าน
               });   
-        }         
+        }
+                 
       },
       showErrorAlert(message) {
             Swal.fire({
@@ -119,24 +133,23 @@ body {
 }
 
 .login-block {
-    width: 400px;
-    padding: 50px;
+    width: 500px; /* ขนาดเพิ่มขึ้น */
+    padding: 60px; /* ปรับขนาด padding */
     background: #fff;
     border-radius: 20px;
-    border-top: 5px solid #0d5302;
-    border-bottom: 5px solid #0d5302;
-    border-left: 5px solid #0d5302;
-    border-right: 5px solid #0d5302;
+    border: 5px solid #0d5302;
     margin: 0 auto;
 }
 
 .login-block h1 {
-    text-align: center;
+  text-align: center;
     color: #000;
-    font-size: 18px;
+    font-size: 22px; 
+    font-weight: 700; 
     text-transform: uppercase;
     margin-top: 0;
     margin-bottom: 20px;
+    text-shadow: 2px 2px 6px #0d5302;
 }
 
 .login-block input {
@@ -194,14 +207,8 @@ body {
 }
 
 .login-block button {
-  margin-top: 20px; /* Add space between Login and Change Password buttons */
+  margin-top: 10px; 
 }
 
-.change-password-button {
-  margin-top: 20px; /* Change the color to fit your design */
-}
 
-.change-password-button:hover {
-  background: #1967d2; /* Change the hover color to fit your design */
-}
 </style>

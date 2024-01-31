@@ -149,7 +149,7 @@ body {
 
 .signup-block {
     max-width: 400px;
-    margin: 0 auto;
+    margin: -130px auto;
     padding: 20px;
     background: #fff;
     border-radius: 20px;
@@ -221,5 +221,6 @@ body {
         color: #ffffff !important; 
         border: 1px solid #d33 !important; 
       }
+
 
 </style>

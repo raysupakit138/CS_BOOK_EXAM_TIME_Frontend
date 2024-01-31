@@ -2,7 +2,8 @@
   <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet'>
   <div class="button">
     <router-link to="/signup" button class="add-user-button">Add User</router-link>
-    <button class="add-subject-button">Add Subject</button>
+    <router-link to="/AddSubject" button class="add-subject-button">Add Subject</router-link>
+    <router-link to="/ViewUsers" button class="view-all-users-button">View all users</router-link>
   </div>
 </template>
 
@@ -20,6 +21,7 @@ export default {
   height: 100vh; 
 }
 
+.view-all-users-button,
 .add-user-button,
 .add-subject-button {
   padding: 30px 30px;
@@ -34,6 +36,7 @@ export default {
   margin: 25px;  
 }
 
+.view-all-users-button:hover,
 .add-user-button:hover,
 .add-subject-button:hover {
   background-color: 	#000000;

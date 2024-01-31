@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import axios from 'axios'
 
 export const useUserStore = defineStore({
   id: 'user',
@@ -18,6 +19,19 @@ export const useUserStore = defineStore({
   }),
   actions: {
     initStore() {
+      if (localStorage.getItem('user.access')) {
+        this.user.access = localStorage.getItem('user.access')
+        this.user.refresh = localStorage.getItem('user.refresh')
+        this.user.username = localStorage.getItem('user.username')
+        this.user.firstname = localStorage.getItem('user.firstname')
+        this.user.lastname = localStorage.getItem('user.lastname')
+        this.user.role = localStorage.getItem('user.role')
+        this.user.prefix = localStorage.getItem('user.prefix')
+        this.user.isAuthenticated = true
+        this.refreshToken()
+
+        console.log('Initialized user:', this.user)
+      }
 
     },
     setToken(data) {
@@ -53,7 +67,25 @@ export const useUserStore = defineStore({
 
       console.log('User', this.user)
     },
-    refreshToken() {}
+    refreshToken() {
+      console.log('Refresh')
+      axios.post('/api/refresh/', {
+
+          refresh: this.user.refresh
+      })
+          .then((response) => {
+              this.user.access = response.data.access
+
+              localStorage.setItem('user.access', response.data.access)
+
+              axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.access
+          })
+          .catch((error)=>{
+              console.log(error)
+
+              this.removeToken()
+          })
+    }
   }
 
 })
