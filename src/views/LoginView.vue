@@ -68,8 +68,13 @@ import Swal from 'sweetalert2'
                 console.log('1' + this.token)
               })
               .catch(error => {
-                console.log('error', error)   //ใช้กรณีส่งข้อมูลไม่ถึงหลังบ้าน
-              })
+                if (error.response && error.response.status === 404) {
+                this.showErrorAlert('No user found with these credentials.');
+                } else {
+                this.showErrorAlert('Invalid username or password, or no users found.');
+               }
+        console.log('error', error);
+      });
         }
         else {
           console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')

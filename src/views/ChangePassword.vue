@@ -33,6 +33,10 @@ export default {
     changePassword() {
       this.errors = []
 
+      if (this.form.old_password === ''){
+        this.showErrorAlert('please fill old password');
+      }
+
       if (this.form.new_password1 !== this.form.new_password2) {
           this.errors.push('The password does not match')
           this.showErrorAlert('The password does not match');
@@ -56,7 +60,18 @@ export default {
                       
                       console.log('Changed Password Success')
 
-                      //redirect to new page
+                       this.form.old_password = ""
+                       this.form.new_password1 = ""
+                       this.form.new_password2 = ""
+
+                      Swal.fire({
+                      icon: 'success',
+                      title: 'Success',
+                      text: 'Password changed successfully!',
+                    }).then(() => {
+                    this.$router.push('/login');
+
+                  });                               
                   } else {
                       const data = JSON.parse(response.data.message)
 

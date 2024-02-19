@@ -6,6 +6,10 @@
     <h1>เพิ่มรายวิชาสำหรับแอดมิน</h1>
     <input type="text" value="" placeholder="รหัสรายวิชา" id="subjectCode" v-model="subjectForm.subjectCode">
     <input type="text" value="" placeholder="ชื่อรายวิชา" id="subject์Name" v-model="subjectForm.subjectName">
+    <select v-model="selectTeacher" id="teacher">
+      <option disabled value="">Please select one</option>
+      <option v-for="teacher in teachers" :value="teacher" :key="teacher.id">{{ teacher.username }}</option>
+    </select>
     <button>Add Subject</button>
   </form>
   </div>
@@ -13,22 +17,45 @@
 
 <script>
 import axios from 'axios'
+import Swal from 'sweetalert2';
 export default {
   data: () => ({
     subjectForm: {
       subjectCode: '',
       subjectName: '',
       teacher: '',
-    }
+    },
+    teachers: [], // Add this line
+    selectTeacher: '',
+
+    
   }),
+  created() {
+    this.fetchTeachers(); // Fetch teachers when component is created
+
+  },
   methods: {
+    fetchTeachers() {
+      axios.get('/api/users') // Adjust the URL to where your teachers are
+        .then(response => {
+          this.teachers = response.data.filter(user => user.role === 'teacher');
+        })
+        .catch(error => {
+          console.error('Could not fetch teachers', error);
+        });
+    },
     createSubject() {
+      console.log(this.selectTeacher)
+      console.log(this.selectTeacher.id)
+      this.subjectForm.teacher = this.selectTeacher.id
       this.errors = []
       if (this.subjectForm.subjectCode === ''){
         this.errors.push('ต้องกรอก subjectcode')
+        this.showErrorAlert('Please enter the course code.')
       }
       if (this.subjectForm.subjectName === ''){
         this.errors.push('ต้องกรอก subjectname')
+        this.showErrorAlert('Please enter the subject name.')
       }
       if (this.errors.length === 0){
         axios
@@ -36,6 +63,14 @@ export default {
             .then(response => { 
               this.subjectForm.subjectCode = ''
               this.subjectForm.subjectName = ''
+              this.subjectForm.teacher = ''
+              this.selectTeacher = ''
+
+              Swal.fire({
+                      icon: 'success',
+                      title: 'Success',
+                      text: 'Successfully added a course!',
+                });    
             })
             .catch(error => {
               console.log('error', error)
@@ -44,7 +79,21 @@ export default {
       else {
         console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')
       }
-    }
+    },
+    showErrorAlert(message) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: message,
+              confirmButtonColor: '#d33', 
+              confirmButtonText: 'OK',
+              customClass: {
+                title: 'error-title', 
+                content: 'error-content', 
+                confirmButton: 'error-confirm-button', 
+              },
+            });
+          },
   }
 }
 </script>
@@ -82,6 +131,17 @@ export default {
     border-radius: 5px;
     font-family: 'Kanit', sans-serif;
     font-size: 18px; 
+}
+
+.AddSubject-block select {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border: 2px solid #0d5302;
+    border-radius: 5px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 18px;
+    background-color: #fff;
 }
 
 .AddSubject-block button {

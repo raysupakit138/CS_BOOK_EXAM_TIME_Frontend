@@ -1,7 +1,7 @@
 <template>
   <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
   <div class="admin-table">
-    <h1>ดูผู้ใช้งานทั้งหมดบนเว็บไซต์</h1>
+    <h1>รายชื่อผู้ใช้งาน</h1>
     <table>
       <thead>
         <tr>
@@ -22,7 +22,7 @@
     </table>
     <div class="user-total">
       <router-link to="/admin" button class="back-button">Back</router-link>
-      User Total: {{ users.length }} User
+      User Total: {{ users.length }} Users
     </div>
   </div>
 </template>
