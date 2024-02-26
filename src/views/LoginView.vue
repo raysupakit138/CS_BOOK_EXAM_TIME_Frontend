@@ -92,10 +92,10 @@ import Swal from 'sweetalert2'
                     this.$router.push('/admin')            
                   }
                   if(this.role === 'student'){
-                    this.$router.push('/test')
+                    this.$router.push('/calendar')
                   }
                   if(this.role === 'teacher'){
-                    this.$router.push('/test')
+                    this.$router.push('/calendar')
                   }
                 }
               })

@@ -20,6 +20,7 @@ export const useUserStore = defineStore({
   actions: {
     initStore() {
       if (localStorage.getItem('user.access')) {
+        this.user.id = localStorage.getItem('user_id')
         this.user.access = localStorage.getItem('user.access')
         this.user.refresh = localStorage.getItem('user.refresh')
         this.user.username = localStorage.getItem('user.username')

@@ -103,7 +103,7 @@ export default {
 .space {
     width: 213px;
     height: 0.5px;
-    margin: 45px auto;
+    margin: 30px auto;
 }
 
 .AddSubject-block {
