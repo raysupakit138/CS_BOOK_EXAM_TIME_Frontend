@@ -33,7 +33,7 @@
           </v-dialog>
           <v-card class="notes-list-card full-width"  outlined flat>
 
-          <v-card-title>Your notes</v-card-title>
+          <v-card-title>My notes</v-card-title>
           <v-card-text class="scrollable-notes-list">
             <v-list dense>
               <v-list-item v-for="(note, index) in notes" :key="index">
@@ -186,13 +186,52 @@ export default {
           console.error('Could not fetch notes', error);
         });
     },
+
+    deleteNote: function(noteIndex) {
+      const note = this.notes[noteIndex];
+      if (!note || !note.id) {
+        console.error('Note ID is required for deletion.');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to delete this note?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#006400',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+        if (result.isConfirmed) {
+          axios.delete(`/notepad/${note.id}`)
+            .then(response => {
+              // Successfully deleted on backend, remove from frontend list
+              this.notes.splice(noteIndex, 1);
+              Swal.fire(
+                'Deleted!',
+                'Your note has been deleted.',
+                'success'
+              );
+            })
+            .catch(error => {
+              console.error('Error deleting note:', error);
+              Swal.fire(
+                'Failed!',
+                'There was a problem deleting your note.',
+                'error'
+              );
+            });
+        }
+      });
+    }
   },
 };
 </script>
 
 <style>
 .notes-section {
-  padding: 0; /* Remove padding if it's not needed */
+  padding: 0; 
   background-color: #f5f5f5;
   height: 100%;
   box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
@@ -211,35 +250,34 @@ export default {
 }
 .notes-list .v-list-item {
   margin-bottom: 2
-  0px; /* This adds 20px of space below each note item */
+  0px; 
 }
 
 .notes-section {
   padding: 20px;
-  background-color: #fafafa;  /* Lighter shade for contrast */
+  background-color: #fafafa;  
   height: 100%;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .notes-list-card {
-  margin-top: 20px; /* Add space between buttons and card */
+  margin-top: 20px; 
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .v-card-text {
-  padding-top: 0; /* Reduce space inside the card */
+  padding-top: 0; 
 }
 
 .scrollable-notes-list {
-  max-height: 350px; /* Adjust this value based on your design needs */
+  max-height: 350px; 
   overflow-y: auto;
   min-height: auto;
 }
 
-
 .full-width {
   width: 100%;
-  max-width: 100%; /* Ensures it does not exceed the width of its parent */
+  max-width: 100%; 
 }
 
 </style>
