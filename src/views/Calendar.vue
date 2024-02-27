@@ -4,13 +4,9 @@
       <v-col cols="12" sm="4">
         <div class="notes-section">
           <div class="text-center">
-            <!-- Add Note button with a margin to the right -->
             <v-btn color="primary" class="mr-2" @click="dialog = true">Add note</v-btn>
-            
-            <!-- Change Password button with the same primary color -->
             <v-btn color="primary" @click="goToChangePassword">Change Password</v-btn>
           </div>
-          <!-- Dialog for adding a note -->
           <v-dialog v-model="dialog" persistent max-width="600px">
             <v-card>
               <v-card-title class="text-h5 grey lighten-2">
@@ -22,7 +18,6 @@
                     <v-col cols="12">
                       <v-textarea v-model="notepadForm.description" label="Enter your note" autofocus outlined rows="5" no-resize></v-textarea>
                     </v-col>
-
                     <v-col cols="12">
                       <v-select :items="subjects" :item-props="showSubject" item-text="username" item-value="id" v-model="notepadForm.subject" label="Select Subject" outlined></v-select>
                     </v-col>
@@ -36,18 +31,43 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+          <v-card class="notes-list-card full-width"  outlined flat>
+
+          <v-card-title>Your notes</v-card-title>
+          <v-card-text class="scrollable-notes-list">
+            <v-list dense>
+              <v-list-item v-for="(note, index) in notes" :key="index">
+                <v-list-item-content>
+                  <v-list-item-title>{{ note.subjectNotepad.subjectName }}</v-list-item-title>
+                  <v-divider class="my-2" color="black"></v-divider>
+                  <v-list-item-subtitle>{{ note.description }}</v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action class="d-flex justify-end align-center">
+                  <v-btn icon @click="editNote(index)" class="mr-2">
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                  <v-btn icon @click="deleteNote(index)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item v-if="notes.length === 0">
+                <v-list-item-content class="text-center">
+                  No notes added yet. Start by adding a new note!
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
         </div>
       </v-col>
-      <!-- Calendar section -->
       <v-col cols="12" sm="8">
         <v-date-picker class="shift-right" width="100%"></v-date-picker>
       </v-col>
     </v-row>
   </v-container>
-</template> 
-
+</template>
 <script>
-
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useUserStore } from '@/stores/user';
@@ -64,6 +84,7 @@ export default {
       subjects: [], 
       selectSubject: {},
       errors: [], 
+      notes: [],
       notepadForm: {
         description: '',
         subject: '',
@@ -74,6 +95,7 @@ export default {
 
   mounted() {
     this.fetchSubjectEnrolled();
+    this.fetchNotes();
   },
   methods: {
     saveNote() {
@@ -150,13 +172,27 @@ export default {
     showSubject(item) {
       return { title: item.subjectName };
     },
+    async fetchNotes() {
+      this.userStore.initStore(); 
+      const studentId = this.userStore.user.id;
+      console.log("fetchNotes-Student ID: ", studentId);
+      await axios
+        .get(`/notepad/?student=${studentId}`) 
+        .then(response => {
+          this.notes = response.data;
+          console.log('note'+this.notes)
+        })
+        .catch(error => {
+          console.error('Could not fetch notes', error);
+        });
+    },
   },
 };
 </script>
 
 <style>
 .notes-section {
-  padding: 20px;
+  padding: 0; /* Remove padding if it's not needed */
   background-color: #f5f5f5;
   height: 100%;
   box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
@@ -173,4 +209,37 @@ export default {
 .v-dialog .v-card-actions {
   background-color: #fafafa; 
 }
+.notes-list .v-list-item {
+  margin-bottom: 2
+  0px; /* This adds 20px of space below each note item */
+}
+
+.notes-section {
+  padding: 20px;
+  background-color: #fafafa;  /* Lighter shade for contrast */
+  height: 100%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.notes-list-card {
+  margin-top: 20px; /* Add space between buttons and card */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.v-card-text {
+  padding-top: 0; /* Reduce space inside the card */
+}
+
+.scrollable-notes-list {
+  max-height: 350px; /* Adjust this value based on your design needs */
+  overflow-y: auto;
+  min-height: auto;
+}
+
+
+.full-width {
+  width: 100%;
+  max-width: 100%; /* Ensures it does not exceed the width of its parent */
+}
+
 </style>
