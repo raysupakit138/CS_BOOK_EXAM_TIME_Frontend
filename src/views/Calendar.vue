@@ -4,13 +4,13 @@
       <v-col cols="12" sm="4">
         <div class="notes-section">
           <div class="text-center">
-            <v-btn color="primary" class="mr-2" @click="dialog = true">Add note</v-btn>
+            <v-btn color="primary"  @click="dialog = true" class="mr-1">Add note</v-btn>
             <v-btn color="primary" @click="goToChangePassword">Change Password</v-btn>
           </div>
           <v-dialog v-model="dialog" persistent max-width="600px">
             <v-card>
               <v-card-title class="text-h5 grey lighten-2">
-                Add a new note
+                Add important note
               </v-card-title>
               <v-card-text>
                 <v-container>
@@ -67,6 +67,7 @@
     </v-row>
   </v-container>
 </template>
+
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -85,6 +86,9 @@ export default {
       selectSubject: {},
       errors: [], 
       notes: [],
+      isEditMode: false,
+      editNoteId: null, // track the id of the note being edited
+      originalNote: {}, // track the original note data before editing
       notepadForm: {
         description: '',
         subject: '',
@@ -112,6 +116,7 @@ export default {
       confirmButtonColor: '#d33', 
     });
     return; 
+    
   }
 
   if (!this.notepadForm.subject) {
@@ -145,10 +150,39 @@ export default {
             confirmButtonColor: '#d33', 
          });
        });
-      }
-      else {
-        console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')
-      }
+    }          
+    if (this.isEditMode) {
+      if (this.isEditMode) {
+        axios.put(`/notepad/${this.editNoteId}/`, this.notepadForm)
+        .then(response => {
+        // Find the note in your notes array and update it
+          const index = this.notes.findIndex(note => note.id === this.editNoteId);
+         if (index !== -1) {
+          this.notes[index].description = this.notepadForm.description;
+          // Update other fields as necessary
+        }
+
+        // Reset form and close dialog
+        // this.resetForm();
+        Swal.fire({
+          icon: 'success',
+          title: 'Updated',
+          text: 'Note successfully updated!',
+        });
+      })
+      .catch(error => {
+        console.error('Error updating note', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update note',
+        });
+      });
+    }
+        else {
+          console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')
+        }
+      }   
     },
     closeDialog() {
       this.dialog = false;
@@ -170,7 +204,7 @@ export default {
         });
     },
     showSubject(item) {
-      return { title: item.subjectName };
+      return { title: item.subjectName + " (" + item.subjectCode + ")" };
     },
     async fetchNotes() {
       this.userStore.initStore(); 
@@ -224,12 +258,22 @@ export default {
             });
         }
       });
-    }
+    },
+      editNote(index) {
+        const noteToEdit = this.notes[index];
+        this.notepadForm.description = noteToEdit.description;
+        this.notepadForm.subject = noteToEdit.subject; // Adjust according to your data model
+        this.isEditMode = true;
+        this.editNoteId = noteToEdit.id;
+        this.dialog = true; // Open the dialog to edit the note
+    },
   },
 };
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
 .notes-section {
   padding: 0; 
   background-color: #f5f5f5;
