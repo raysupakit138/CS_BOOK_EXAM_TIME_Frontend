@@ -3,6 +3,10 @@
     <v-row justify="center">
       <v-col cols="12" sm="4">
         <div class="notes-section">
+          <div class="user-info">
+          <span>Student : {{ userName }}</span>
+          <v-btn small @click="logout" class="logout-button">Log Out</v-btn>
+        </div>
           <div class="text-center">
             <v-btn color="primary"  @click="dialog = true" class="mr-1">Add note</v-btn>
             <v-btn color="primary" @click="goToChangePassword">Change Password</v-btn>
@@ -19,7 +23,7 @@
                       <v-textarea v-model="notepadForm.description" label="Enter your note" autofocus outlined rows="5" no-resize></v-textarea>
                     </v-col>
                     <v-col cols="12">
-                      <v-select :items="subjects" :item-props="showSubject" item-text="username" item-value="id" v-model="notepadForm.subject" label="Select Subject" outlined></v-select>
+                      <v-select :items="subjects" :item-props="showSubject" item-text="username" item-value="id" v-model="notepadForm.subject" label="Select Subject" outlined ></v-select>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -38,7 +42,7 @@
             <v-list dense>
               <v-list-item v-for="(note, index) in notes" :key="index">
                 <v-list-item-content>
-                  <v-list-item-title>{{ note.subjectNotepad.subjectName }}</v-list-item-title>
+                  <v-list-item-title>{{ note.subjectNotepad.subjectName }} ({{ note.subjectNotepad.subjectCode }})</v-list-item-title>
                   <v-divider class="my-2" color="black"></v-divider>
                   <v-list-item-subtitle>{{ note.description }}</v-list-item-subtitle>
                 </v-list-item-content>
@@ -69,14 +73,23 @@
 </template>
 
 <script>
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user'
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
 export default {
   setup() {
     const userStore = useUserStore();
-    return { userStore };
+    console.log(userStore.user.username)
+    return {
+       userStore,
+       userName: userStore.user.username,
+
+       };
+  },
+  beforeCreate() {
+      this.userStore.initStore()
+
   },
   data() {
     return {
@@ -102,6 +115,14 @@ export default {
     this.fetchNotes();
   },
   methods: {
+    resetForm() {
+    this.notepadForm.description = '';
+    this.notepadForm.subject = '';
+    // Reset any other fields you may have
+    this.isEditMode = false;
+    this.editNoteId = null;
+  },
+
     saveNote() {
       console.log(this.selectSubject)
       this.dialog = false;
@@ -115,8 +136,7 @@ export default {
       text: 'Note field is required',
       confirmButtonColor: '#d33', 
     });
-    return; 
-    
+    return;   
   }
 
   if (!this.notepadForm.subject) {
@@ -139,7 +159,10 @@ export default {
                       icon: 'success',
                       title: 'Success',
                       text: 'Successfully added a note!',
+              
                 });    
+              this.resetForm(); // Reset the form after successful add
+              this.dialog = false; // Close the dialog
             })
             .catch(error => {
             console.log('error', error);
@@ -169,6 +192,8 @@ export default {
           title: 'Updated',
           text: 'Note successfully updated!',
         });
+        this.resetForm(); // Reset the form after successful update
+        this.dialog = false; // Close the dialog
       })
       .catch(error => {
         console.error('Error updating note', error);
@@ -186,23 +211,40 @@ export default {
     },
     closeDialog() {
       this.dialog = false;
+      this.resetForm();
     },
     goToChangePassword() {
       this.$router.push({ name: 'ChangePassword' });
     },
+    // fetchSubjectEnrolled() {
+    //   this.userStore.initStore(); 
+    //   const studentId = this.userStore.user.id;
+    //   console.log("Student ID: ", studentId);
+    //   this.notepadForm.student = studentId
+    //   axios.get(`/studentEnrolled/?student=${studentId}`)
+    //     .then(response => {
+    //       this.subjects = response.data.map(subject => subject.subjectEnrolled);
+    //     })
+    //     .catch(error => {
+    //       console.error('Could not fetch subjects', error);
+    //     });
+    // },
     fetchSubjectEnrolled() {
-      this.userStore.initStore(); 
-      const studentId = this.userStore.user.id;
-      console.log("Student ID: ", studentId);
-      this.notepadForm.student = studentId
-      axios.get(`/studentEnrolled/?student=${studentId}`)
-        .then(response => {
-          this.subjects = response.data.map(subject => subject.subjectEnrolled);
-        })
-        .catch(error => {
-          console.error('Could not fetch subjects', error);
-        });
-    },
+    this.userStore.initStore(); 
+    const studentId = this.userStore.user.id;
+    this.notepadForm.student = studentId
+    axios.get(`/studentEnrolled/?student=${studentId}`)
+      .then(response => {
+        this.subjects = response.data.map(subject => subject.subjectEnrolled);
+        // Set the default selection for the v-select
+        if (this.subjects.length > 0) {
+          this.notepadForm.subject = this.subjects[0].id; // assuming 'id' is the property to bind
+        }
+      })
+      .catch(error => {
+        console.error('Could not fetch subjects', error);
+      });
+  },
     showSubject(item) {
       return { title: item.subjectName + " (" + item.subjectCode + ")" };
     },
@@ -267,6 +309,14 @@ export default {
         this.editNoteId = noteToEdit.id;
         this.dialog = true; // Open the dialog to edit the note
     },
+    addNewNote() {
+    this.resetForm(); // Reset form when adding a new note
+    this.dialog = true; // Open the dialog
+    },
+    logout() {
+      this.userStore.removeToken()
+      this.$router.push('/login')
+    }
   },
 };
 </script>
@@ -322,6 +372,23 @@ export default {
 .full-width {
   width: 100%;
   max-width: 100%; 
+}
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.user-info span {
+  font-weight: 600;
+  color: #424242;
+}
+
+.logout-button {
+  color: #d32f2f; /* Red color for the log out button */
 }
 
 </style>

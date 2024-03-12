@@ -1,7 +1,7 @@
 <template>
   <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
   <div class="admin-table">
-    <h1>รายชื่อผู้ใช้งาน</h1>
+    <h1>Users list</h1>
     <table>
       <thead>
         <tr>

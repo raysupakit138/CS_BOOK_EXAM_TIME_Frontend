@@ -8,6 +8,7 @@ import ChangePassword from '../views/ChangePassword.vue'
 import ViewUsers from '../views/ViewUsers.vue'
 import Calendar from '../views/Calendar.vue'
 import AddSubject from '../views/AddSubject.vue'
+import TeacherCalendar from '../views/TeacherCalendar.vue'
 
 
 const router = createRouter({
@@ -65,6 +66,11 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
+    },
+    {
+      path : '/TeacherCalendar',
+      name : 'TeacherCalendar',
+      component : TeacherCalendar
     }
   ]
 })

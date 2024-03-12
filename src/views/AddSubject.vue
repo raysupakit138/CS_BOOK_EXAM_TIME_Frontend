@@ -3,7 +3,7 @@
   <div class="space"></div>
   <div class="AddSubject-block">
   <form v-on:submit.prevent="createSubject">
-    <h1>เพิ่มรายวิชาสำหรับแอดมิน</h1>
+    <h1>Add subjects for admins</h1>
     <input type="text" value="" placeholder="รหัสรายวิชา" id="subjectCode" v-model="subjectForm.subjectCode">
     <input type="text" value="" placeholder="ชื่อรายวิชา" id="subject์Name" v-model="subjectForm.subjectName">
     <select v-model="selectTeacher" id="teacher">
@@ -18,6 +18,7 @@
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2';
+
 export default {
   data: () => ({
     subjectForm: {
@@ -25,14 +26,12 @@ export default {
       subjectName: '',
       teacher: '',
     },
-    teachers: [], // Add this line
+    teachers: [],
     selectTeacher: '',
-
-    
+    errors: [], // Initialize an empty array for errors
   }),
   created() {
-    this.fetchTeachers(); // Fetch teachers when component is created
-
+    this.fetchTeachers(); // Fetch teachers when the component is created
   },
   methods: {
     fetchTeachers() {
@@ -49,51 +48,79 @@ export default {
       console.log(this.selectTeacher.id)
       this.subjectForm.teacher = this.selectTeacher.id
       this.errors = []
-      if (this.subjectForm.subjectCode === ''){
-        this.errors.push('ต้องกรอก subjectcode')
-        this.showErrorAlert('Please enter the course code.')
+      if (this.selectTeacher === '') {
+        this.errors.push('Please select a teacher.');
+        this.showErrorAlert('Please select a teacher.');
+        return; 
       }
-      if (this.subjectForm.subjectName === ''){
-        this.errors.push('ต้องกรอก subjectname')
-        this.showErrorAlert('Please enter the subject name.')
-      }
-      if (this.errors.length === 0){
-        axios
-            .post('/subject/', this.subjectForm)
-            .then(response => { 
-              this.subjectForm.subjectCode = ''
-              this.subjectForm.subjectName = ''
-              this.subjectForm.teacher = ''
-              this.selectTeacher = ''
 
-              Swal.fire({
-                      icon: 'success',
-                      title: 'Success',
-                      text: 'Successfully added a course!',
+      this.subjectForm.teacher = this.selectTeacher.id;
+
+      axios.get('/subject/') // Adjust this URL to your API endpoint that lists all subjects
+        .then(response => {
+          const subjects = response.data;
+
+          const isDuplicateCode = subjects.some(subject => subject.subjectCode === this.subjectForm.subjectCode);
+          const isDuplicateName = subjects.some(subject => subject.subjectName === this.subjectForm.subjectName);
+
+          if (isDuplicateCode) {
+            this.errors.push('Subject code already exists.');
+            this.showErrorAlert('The entered course code already exists. Please use a different code.');
+          }
+
+          if (isDuplicateName) {
+            this.errors.push('Subject name already exists.');
+            this.showErrorAlert('The entered subject name already exists. Please use a different name.');
+          }
+
+          if (this.subjectForm.subjectCode === ''){
+            this.errors.push('ต้องกรอก subjectcode');
+            this.showErrorAlert('Please enter the course code.');
+          }
+          if (this.subjectForm.subjectName === ''){
+            this.errors.push('ต้องกรอก subjectname');
+            this.showErrorAlert('Please enter the subject name.');
+          }
+          
+          if (this.errors.length === 0){
+            axios.post('/subject/', this.subjectForm)
+              .then(response => { 
+                this.subjectForm.subjectCode = ''
+                this.subjectForm.subjectName = ''
+                this.subjectForm.teacher = ''
+                this.selectTeacher = ''
+
+                Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Successfully added a course!',
                 });    
-            })
-            .catch(error => {
-              console.log('error', error)
-            })
-      }
-      else {
-        console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')
-      }
+              })
+              .catch(error => {
+                console.log('error', error)
+              })
+          } else {
+            console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')
+          }
+        })
+        .catch(error => {
+          console.error('Could not validate subject data', error);
+        });
     },
     showErrorAlert(message) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: message,
-              confirmButtonColor: '#d33', 
-              confirmButtonText: 'OK',
-              customClass: {
-                title: 'error-title', 
-                content: 'error-content', 
-                confirmButton: 'error-confirm-button', 
-              },
-            });
-          },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message,
+        confirmButtonColor: '#d33', 
+        confirmButtonText: 'OK',
+        customClass: {
+          title: 'error-title', 
+          content: 'error-content', 
+          confirmButton: 'error-confirm-button', 
+        },
+      });
+    },
   }
 }
 </script>

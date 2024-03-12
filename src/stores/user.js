@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
 import axios from 'axios'
+import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore({
   id: 'user',
@@ -23,11 +23,11 @@ export const useUserStore = defineStore({
         this.user.id = localStorage.getItem('user_id')
         this.user.access = localStorage.getItem('user.access')
         this.user.refresh = localStorage.getItem('user.refresh')
-        this.user.username = localStorage.getItem('user.username')
-        this.user.firstname = localStorage.getItem('user.firstname')
-        this.user.lastname = localStorage.getItem('user.lastname')
-        this.user.role = localStorage.getItem('user.role')
-        this.user.prefix = localStorage.getItem('user.prefix')
+        this.user.username = localStorage.getItem('user_username')
+        this.user.firstname = localStorage.getItem('user_firstname')
+        this.user.lastname = localStorage.getItem('user_lastname')
+        this.user.role = localStorage.getItem('user_role')
+        this.user.prefix = localStorage.getItem('user_prefix')
         this.user.isAuthenticated = true
         this.refreshToken()
 
@@ -46,8 +46,33 @@ export const useUserStore = defineStore({
 
       console.log('user.access: ', localStorage.getItem('user.access'))
     },
-    
-    removeToken() {},
+    removeToken() {
+      console.log('removeToken')
+
+      this.user.refresh = null
+      this.user.access = null
+      this.user.isAuthenticated = false
+      this.user.id = null
+      this.user.username = null
+      this.user.email = null
+      this.user.role = null
+      this.user.name = null
+      this.user.prefix = null
+      this.user.firstname = null
+      this.user.lastname = null
+
+      localStorage.setItem('user.access', '')
+      localStorage.setItem('user.refresh', '')
+      localStorage.setItem('user_id', '')
+      localStorage.setItem('user.user_id', '')
+      localStorage.setItem('user_username', '')
+      localStorage.setItem('user_email', '')
+      localStorage.setItem('user_role', '')
+      localStorage.setItem('user.name', '')
+      localStorage.setItem('user_firstname', '')
+      localStorage.setItem('user_lastname', '')
+      localStorage.setItem('user_prefix', '')
+    },
     setUserInfo(user) {
 
       this.user.id = user.id
