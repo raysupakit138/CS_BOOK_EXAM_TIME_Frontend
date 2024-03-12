@@ -50,6 +50,7 @@
             <v-select
               :items="subjects"
               v-model="selectedSubject"
+              :item-props="showSubject"
               label="Select Subject"
               required
             ></v-select>
@@ -111,7 +112,25 @@
   </v-container>
 </template>
 <script>
+import { useUserStore } from '@/stores/user'
+import axios from 'axios'
+
 export default {
+  setup() {
+    const userStore = useUserStore();
+    return {
+       userStore,
+       userName: userStore.user.username,
+
+       };
+  },
+  beforeCreate() {
+      this.userStore.initStore()
+
+  },
+  mounted() {
+    this.fetchSubjectTeacher();
+  },
   data () {
     return {
       dialog: false,
@@ -119,7 +138,10 @@ export default {
       timeStartPickerDialog: false,
       timeEndPickerDialog: false,
       selectedStartTime: null, // This will hold the selected time
-      selectedEndTime: null
+      selectedEndTime: null,
+      teacherId: "",
+      subjects: [],
+      selectedSubject: ""
     }
   },
   watch: {
@@ -151,6 +173,39 @@ export default {
     saveStartTime() {
       // You can handle saving the time here if needed
       this.timeStartPickerDialog = false;
+    },
+    logout() {
+      this.userStore.removeToken()
+      this.$router.push('/login')
+    },
+    goToChangePassword() {
+      this.$router.push({ name: 'ChangePassword' });
+    },
+    fetchSubjectTeacher() {
+    this.userStore.initStore(); 
+    const teacherId = this.userStore.user.id;
+    this.teacherId = teacherId
+    axios.get(`/subject/?teacher=${teacherId}`)
+      .then(response => {
+        this.subjects = response.data.map(subject => subject);
+        console.log("showsubject")
+        console.log(this.subjects)
+        this.selectedSubject = this.subjects[0];
+
+        // Set the default selection for the v-select
+        // if (this.subjects.length > 0) {
+        //   this.notepadForm.subject = this.subjects[0].id; // assuming 'id' is the property to bind
+        // }
+      })
+      .catch(error => {
+        console.error('Could not fetch subjects', error);
+      });
+  },
+  showSubject(item) {
+      return { title: item.subjectName + " (" + item.subjectCode + ")" };
+    },
+    saveDetails(){
+      this.dialog = false; // Open the dialog
     }
   }
 }
@@ -164,5 +219,7 @@ export default {
   border-radius: 4px; /* Optional: adds rounded corners to the background */
   /* Add additional styling as needed */
 }
+
+
 
 </style>

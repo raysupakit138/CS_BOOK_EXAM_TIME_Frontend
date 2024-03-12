@@ -95,7 +95,7 @@ import Swal from 'sweetalert2'
                     this.$router.push('/calendar')
                   }
                   if(this.role === 'teacher'){
-                    this.$router.push('/calendar')
+                    this.$router.push('/TeacherCalendar')
                   }
                 }
               })
