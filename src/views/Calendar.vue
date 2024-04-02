@@ -155,10 +155,10 @@ export default {
         this.studentId = studentId;
 
         const subjectsResponse = await axios.get(`/studentEnrolled/?student=${studentId}`);
-        this.subjects = subjectsResponse.data;
+        this.subjectId = subjectsResponse.data;
         
         // Fetch all exams for the enrolled subjects
-        const examsResponses = await Promise.all(this.subjects.map(subject =>
+        const examsResponses = await Promise.all(this.subjectId.map(subject =>
           axios.get(`/examdetail/?subject=${subject.id}`)
         ));
 
