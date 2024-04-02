@@ -66,7 +66,33 @@
         </div>
       </v-col>
       <v-col cols="12" sm="8">
-        <v-date-picker class="shift-right" width="100%"></v-date-picker>
+        <v-card class="schedule-section">
+          <v-card-title class="text-h5 grey lighten-2">My Schedule</v-card-title>
+          <v-card-text>
+            <v-simple-table>
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-left">Subject</th>
+                  <th class="text-left">Description</th>
+                  <th class="text-left">Start Time</th>
+                  <th class="text-left">End Time</th>
+                  <th class="text-left">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="exam in exams" :key="exam.id">
+                  <td>{{ exam.subjectExamDetail.subjectName }} ({{ exam.subjectExamDetail.subjectCode }})</td>
+                  <td>{{ exam.description }}</td>
+                  <td>{{ exam.startTime }}</td>
+                  <td>{{ exam.endTime }}</td>
+                  <td>{{ exam.date }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -100,25 +126,77 @@ export default {
       errors: [], 
       notes: [],
       isEditMode: false,
-      editNoteId: null, // track the id of the note being edited
-      originalNote: {}, // track the original note data before editing
+      editNoteId: null, 
+      originalNote: {}, 
       notepadForm: {
         description: '',
         subject: '',
         student: ''
-      }
+      },
+      exams: [],
+      studentEnrolled: [],
+      subjectId: [],
+
+
+
     };
   },
 
   mounted() {
     this.fetchSubjectEnrolled();
     this.fetchNotes();
+    this.fetchExamDetailStudent();
   },
   methods: {
+    async fetchExamDetailStudent() {
+      try {
+        this.userStore.initStore();
+        const studentId = this.userStore.user.id;
+        this.studentId = studentId;
+
+        const subjectsResponse = await axios.get(`/studentEnrolled/?student=${studentId}`);
+        this.subjects = subjectsResponse.data;
+        
+        // Fetch all exams for the enrolled subjects
+        const examsResponses = await Promise.all(this.subjects.map(subject =>
+          axios.get(`/examdetail/?subject=${subject.id}`)
+        ));
+
+        // Flatten the array of arrays into a single array with all exam objects
+        this.exams = examsResponses.map(res => res.data).flat();
+      } catch (error) {
+        console.error('Error fetching student exam data:', error);
+        throw error;
+      }
+    },
+    // async fetchExamDetailStudent() {
+    //   try {
+    //     this.userStore.initStore();
+    //     const studentId = this.userStore.user.id;
+    //     this.studentId = studentId;
+
+    //     // ดึงข้อมูลวิชาที่นิสิตลงทะเบียนแบบ asynchronous
+    //     const subjectsResponse = await axios.get(`/studentEnrolled/?student=${studentId}`);
+    //     this.subjects = subjectsResponse.data;
+        
+    //     // ดึงข้อมูลการสอบสำหรับวิชาที่ลงทะเบียนทั้งหมดแบบ asynchronous
+    //     const examsPromises = this.subjects.map(async (subject) => {
+    //       const examResponse = await axios.get(`/examdetail/?subject=${subject.id}`);
+    //       return examResponse.data; // สมมติว่าการตอบสนองมีข้อมูลการสอบ
+    //     });
+
+    //     const exams = await Promise.all(examsPromises);
+    //     console.log(exams); // ตัวอย่างการแสดงผลข้อมูลการสอบ
+    //     this.exams = this.exams.flat();
+
+    //   } catch (error) {
+    //     console.error('Error fetching student exam data:', error);
+    //     throw error;
+    //   }
+    // },
     resetForm() {
     this.notepadForm.description = '';
     this.notepadForm.subject = '';
-    // Reset any other fields you may have
     this.isEditMode = false;
     this.editNoteId = null;
   },
@@ -161,8 +239,9 @@ export default {
                       text: 'Successfully added a note!',
               
                 });    
-              this.resetForm(); // Reset the form after successful add
-              this.dialog = false; // Close the dialog
+                
+              this.resetForm(); 
+              this.dialog = false; 
             })
             .catch(error => {
             console.log('error', error);
@@ -178,22 +257,17 @@ export default {
       if (this.isEditMode) {
         axios.put(`/notepad/${this.editNoteId}/`, this.notepadForm)
         .then(response => {
-        // Find the note in your notes array and update it
           const index = this.notes.findIndex(note => note.id === this.editNoteId);
          if (index !== -1) {
           this.notes[index].description = this.notepadForm.description;
-          // Update other fields as necessary
         }
-
-        // Reset form and close dialog
-        // this.resetForm();
         Swal.fire({
           icon: 'success',
           title: 'Updated',
           text: 'Note successfully updated!',
         });
-        this.resetForm(); // Reset the form after successful update
-        this.dialog = false; // Close the dialog
+        this.resetForm(); 
+        this.dialog = false; 
       })
       .catch(error => {
         console.error('Error updating note', error);

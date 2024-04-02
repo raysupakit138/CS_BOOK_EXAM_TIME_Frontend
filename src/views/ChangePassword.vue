@@ -32,6 +32,10 @@ export default {
   methods: {
     changePassword() {
       this.errors = []
+      if(this.form.old_password === '' && this.form.new_password1 === '' && this.form.new_password2 === ''){
+        this.showErrorAlert('Please fill in your password in all fields');
+        return;
+      }
 
       if (this.form.old_password === ''){
         this.showErrorAlert('please fill old password');

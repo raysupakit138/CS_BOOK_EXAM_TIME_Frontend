@@ -9,6 +9,7 @@ import ViewUsers from '../views/ViewUsers.vue'
 import Calendar from '../views/Calendar.vue'
 import AddSubject from '../views/AddSubject.vue'
 import TeacherCalendar from '../views/TeacherCalendar.vue'
+import CancelExam from '../views/CancelExam.vue'
 
 
 const router = createRouter({
@@ -50,7 +51,7 @@ const router = createRouter({
       component: ViewUsers
     },
     {
-      path : '/Calendar',
+      path : '/StudentCalendar',
       name : 'Calendar',
       component : Calendar
     },
@@ -71,7 +72,12 @@ const router = createRouter({
       path : '/TeacherCalendar',
       name : 'TeacherCalendar',
       component : TeacherCalendar
-    }
+    },
+    {
+      path : '/CancelExam',
+      name : 'CancelExam',
+      component : CancelExam
+    },
   ]
 })
 

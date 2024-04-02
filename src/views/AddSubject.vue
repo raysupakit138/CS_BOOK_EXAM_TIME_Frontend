@@ -28,14 +28,14 @@ export default {
     },
     teachers: [],
     selectTeacher: '',
-    errors: [], // Initialize an empty array for errors
+    errors: [], 
   }),
   created() {
-    this.fetchTeachers(); // Fetch teachers when the component is created
+    this.fetchTeachers(); 
   },
   methods: {
     fetchTeachers() {
-      axios.get('/api/users') // Adjust the URL to where your teachers are
+      axios.get('/api/users') 
         .then(response => {
           this.teachers = response.data.filter(user => user.role === 'teacher');
         })
@@ -48,15 +48,10 @@ export default {
       console.log(this.selectTeacher.id)
       this.subjectForm.teacher = this.selectTeacher.id
       this.errors = []
-      if (this.selectTeacher === '') {
-        this.errors.push('Please select a teacher.');
-        this.showErrorAlert('Please select a teacher.');
-        return; 
-      }
 
       this.subjectForm.teacher = this.selectTeacher.id;
 
-      axios.get('/subject/') // Adjust this URL to your API endpoint that lists all subjects
+      axios.get('/subject/') 
         .then(response => {
           const subjects = response.data;
 
@@ -72,15 +67,27 @@ export default {
             this.errors.push('Subject name already exists.');
             this.showErrorAlert('The entered subject name already exists. Please use a different name.');
           }
-
+          if (this.subjectForm.subjectCode === '' && this.subjectForm.subjectName === ''){
+            this.errors.push('ต้องกรอก subjectcode');
+            this.showErrorAlert('Please enter the course code and subject name');
+            return;
+          }
           if (this.subjectForm.subjectCode === ''){
             this.errors.push('ต้องกรอก subjectcode');
             this.showErrorAlert('Please enter the course code.');
+            return;
           }
           if (this.subjectForm.subjectName === ''){
             this.errors.push('ต้องกรอก subjectname');
             this.showErrorAlert('Please enter the subject name.');
+            return;
           }
+
+          if (this.selectTeacher === '') {
+          this.errors.push('Please select a teacher.');
+          this.showErrorAlert('Please select a teacher.');
+          return; 
+         }
           
           if (this.errors.length === 0){
             axios.post('/subject/', this.subjectForm)

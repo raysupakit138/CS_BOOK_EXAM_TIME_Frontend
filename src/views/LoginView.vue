@@ -5,8 +5,7 @@
     <title>Login</title>
     <link rel="stylesheet" href="stylelogin.css">
 </head>
-<body>
-    
+<body>   
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet'>
 <div class="logo"></div>
 <div class="login-block">
@@ -16,7 +15,6 @@
     <input type="password" value="" placeholder="Password" id="password" v-model=loginform.password>
    <button v-on:click.prevent="submitform">Login</button>
   </form>
-
 </div>
 </body>
 
@@ -46,7 +44,11 @@ import Swal from 'sweetalert2'
     methods: {
       async submitform() {
         this.errors = []
-        //check error
+        if (this.loginform.username === '' && this.loginform.password === '') {
+          this.errors.push('โปรดกรอก username และ password')
+          this.showErrorAlert('Please fill in both username and password');
+          return;
+        }
         if (this.loginform.username === '') {
           this.errors.push('โปรดกรอก username')
           this.showErrorAlert('Please fill in username');
@@ -58,7 +60,6 @@ import Swal from 'sweetalert2'
         console.log(this.errors)
         console.log(this.loginform.username , this.loginform.password)
         if (this.errors.length === 0){
-           // send data to backend
          await axios
               .post('/api/login/', this.loginform)
               .then(response => {
@@ -84,15 +85,13 @@ import Swal from 'sweetalert2'
               .get('/api/userInfo/')
               .then(response => {
                 this.userStore.setUserInfo(response.data)
-                console.log('2' + this.token)
                 if(this.token){
                   this.role = response.data.role
-                  console.log('85' + this.role)
                   if(this.role === 'admin'){
                     this.$router.push('/admin')            
                   }
                   if(this.role === 'student'){
-                    this.$router.push('/calendar')
+                    this.$router.push('/StudentCalendar')
                   }
                   if(this.role === 'teacher'){
                     this.$router.push('/TeacherCalendar')
@@ -100,7 +99,7 @@ import Swal from 'sweetalert2'
                 }
               })
               .catch(error => {
-                console.log('error', error)   //ใช้กรณีส่งข้อมูลไม่ถึงหลังบ้าน
+                console.log('error', error) 
               });   
         }
                  
@@ -138,8 +137,8 @@ body {
 }
 
 .login-block {
-    width: 500px; /* ขนาดเพิ่มขึ้น */
-    padding: 60px; /* ปรับขนาด padding */
+    width: 500px;
+    padding: 60px; 
     background: #fff;
     border-radius: 20px;
     border: 5px solid #0d5302;
@@ -214,6 +213,5 @@ body {
 .login-block button {
   margin-top: 10px; 
 }
-
 
 </style>

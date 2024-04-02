@@ -4,13 +4,34 @@
     <router-link to="/signup" button class="add-user-button">Add User</router-link>
     <router-link to="/AddSubject" button class="add-subject-button">Add Subject</router-link>
     <router-link to="/ViewUsers" button class="view-all-users-button">View all users</router-link>
+    <router-link to="/CancelExam" button class="cancel-exam-button">Cancel Exam</router-link>
+    <button @click="logout" class="logout-admin">Log out</button>
   </div>
 </template>
 
 <script>
+import { useUserStore } from '@/stores/user'
 export default {
-  
-}
+  setup() {
+    const userStore = useUserStore();
+    console.log(userStore.user.username)
+    return {
+       userStore,
+       userName: userStore.user.username,
+
+       };
+  },
+  beforeCreate() {
+      this.userStore.initStore()
+
+  },
+  methods: {
+    logout() {
+      this.userStore.removeToken();
+      this.$router.push('/login');
+    }
+  }
+} 
 </script>
 
 <style>
@@ -19,10 +40,12 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh; 
+  position: relative; 
 }
 
 .view-all-users-button,
 .add-user-button,
+.cancel-exam-button,
 .add-subject-button {
   padding: 30px 30px;
   font-size: 20px;
@@ -30,15 +53,36 @@ export default {
   background-color: #006600;
   color: white;
   border-radius: 5px;
-  border: 2px solid #003300; 
-  border-radius: 10px; 
-  font-family: 'Montserrat', sans-serif; 
+  border: 2px solid #003300;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
   margin: 25px;  
 }
 
 .view-all-users-button:hover,
 .add-user-button:hover,
+.cancel-exam-button:hover,
 .add-subject-button:hover {
-  background-color: 	#000000;
+  background-color: #000000;
 }
+
+.logout-admin {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #990000; 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Montserrat', sans-serif;
+  position: absolute; 
+  top: 20px;
+  right: 20px;
+}
+
+.logout-admin:hover {
+  background-color: #45a049;
+}
+
+
 </style>

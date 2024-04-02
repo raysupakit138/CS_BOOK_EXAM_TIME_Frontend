@@ -67,7 +67,6 @@ import Swal from 'sweetalert2';
     methods: {
       submitform(){
         this.errors = []
-        // check error
         if (this.signupForm.firstname === '') {
           this.errors.push('ต้องกรอก firstname')
           this.showErrorAlert('Please fill out the information completely.');
@@ -102,7 +101,6 @@ import Swal from 'sweetalert2';
         }
         console.log(this.errors)
         if (this.errors.length === 0){
-           // send data to backend
           axios
               .post('/api/signup/', this.signupForm)
               .then(response => {
@@ -122,6 +120,7 @@ import Swal from 'sweetalert2';
                 });    
                   
                 }else {
+                  this.showErrorAlert('Username or Email already exists.')
                   console.log(response.data.message)
                 }
 
@@ -133,9 +132,6 @@ import Swal from 'sweetalert2';
         else {
           console.log('error: ตรวจสอบการกรอกข้อมูลอีกครั้ง')
         }
-        
-       
-        console.log('12345') 
         console.log(
           this.signupForm.firstname,this.signupForm.lastname,this.signupForm.username,
           this.signupForm.role,this.signupForm.email,this.signupForm.password1,this.signupForm.password2)
@@ -154,9 +150,6 @@ import Swal from 'sweetalert2';
               },
             });
           },
-      test1(){
-        console.log("testttttttttt")
-      }
     }
   }
 </script>
@@ -184,35 +177,35 @@ body {
 }
 
 .signup-block h1 {
-    margin-bottom: 30px; /* Increase spacing below the title */
-    color: #0d5302; /* Optional: match the title color with the border */
-    font-size: 32px; /* Increased font size for greater visibility */
-    font-weight: 600; /* Increased font weight for bolder text */
+    margin-bottom: 30px; 
+    color: #0d5302; 
+    font-size: 32px; 
+    font-weight: 600; 
 }
 
 .input-group {
     display: flex;
-    gap: 20px; /* Use gap to easily manage spacing between items */
-    margin-bottom: 20px; /* Maintain or adjust bottom margin for spacing */
+    gap: 20px; 
+    margin-bottom: 20px; 
 }
 
 .input-group > div {
-    width: 50%; /* Ensure inputs take up half the width of their container */
+    width: 50%; 
 }
 
 
 .signup-block input,
 .signup-block select {
-    width: 100%; /* Ensure inputs expand to fill their container */
-    padding: 10px; /* Increase padding for larger click areas and readability */
-    border: 1px solid #ccc; /* Lighten border for a softer look */
-    background: #f9f9f9; /* Light background for inputs for subtle contrast */
-    transition: border-color 0.3s; /* Smooth transition for focus effect */
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    background: #f9f9f9;
+    transition: border-color 0.3s; 
 }
 
 .signup-block input:focus,
 .signup-block select:focus {
-    border-color: #0d5302; /* Highlight focus with the theme color */
+    border-color: #0d5302; 
 }
 
 .signup-block select {
@@ -227,7 +220,7 @@ body {
 
 
 .signup-block button {
-    margin-top: 20px; /* Add space above the button */
+    margin-top: 20px;
     width: 100%;
     height: 40px;
     background: #0d5302;
@@ -262,8 +255,7 @@ body {
 
 .signup-block input,
 .signup-block select {
-    width: 100%; /* Adjust width to fit within flex layout */
-    /* Other styles remain unchanged */
+    width: 100%; 
 }
 
 .error-title {

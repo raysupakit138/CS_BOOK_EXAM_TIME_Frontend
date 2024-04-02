@@ -32,10 +32,6 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      // users: [
-      //   { id: 1, firstname: 'นิธิโชติ',lastname: 'ขาวผ่อง', username: 'Pee0071', role: 'Student' },
-      //   { id: 2, firstname: 'นิธิโชติ',lastname: 'ขาวผ่อง', username: 'Pee0071', role: 'Student' },
-      // ]
       users: []
     };
   },
@@ -44,7 +40,7 @@ export default {
   },
   methods: {
     getUsers() {
-      axios.get('/api/users') // Replace with your Django API URL
+      axios.get('/api/users') 
         .then(response => {
           this.users = response.data;
         })
