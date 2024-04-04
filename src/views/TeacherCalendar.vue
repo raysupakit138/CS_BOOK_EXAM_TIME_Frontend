@@ -34,33 +34,16 @@
           </div>
         </div>
         <div class="text-center">
-          <v-row class="ma-0 pa-0"> <!-- Reduce margin and padding of the row -->
-            <v-col cols="12" class="d-flex justify-space-between align-center pa-1 "> <!-- Reduce padding for the column -->
+          <v-row class="ma-0 pa-0"> 
+            <v-col cols="12" class="d-flex justify-space-between align-center pa-1 "> 
               <v-btn class="button-full-width" color="green" @click="openExamBook">Book an Exam Time</v-btn>
             </v-col>
-            <!-- <v-col cols="12" class="d-flex justify-space-between align-center pa-1"> 
-              <v-btn class="button-full-width" color="error" @click="cancelExam">Cancel Exam</v-btn>
-            </v-col> -->
           </v-row>
         </div>
         </div>
       </v-col>
       <v-col cols="12" sm="8">
         <v-date-picker class="shift-right" width="100%" v-model="selectedDate"></v-date-picker>
-        <!-- <v-date-picker
-          class="shift-right"
-          width="100%"
-          v-model="selectedDate"
-          @mouseover.native="handleMouseover"
-        >
-          <template v-slot:day="{ day }">
-            <div @mouseover="hoverDate(day)">
-              {{ day.date }}
-            </div>
-          </template>
-        </v-date-picker> -->
-
-        <!-- dialog -->
         <v-dialog v-model="dialog" persistent width="300px">
           <v-card>
             <v-card-title>
@@ -81,19 +64,6 @@
             <span class="headline">Enter Details</span>
           </v-card-title>
           <v-card-text>
-            <!-- <v-menu
-              ref="menu"
-              v-model="menu"
-              :close-on-content-click="false"
-              :return-value.sync="date"
-              transition="scale-transition"
-              offset-y
-              min-width="auto"
-            >
-              <template v-slot:activator="{ on, attrs }">
-              </template>
-              <v-date-picker v-model="date" no-title @input="menu = false"></v-date-picker>
-            </v-menu> -->
             <v-select
               :items="subjects"
               v-model="selectedSubject"
@@ -196,7 +166,6 @@ export default {
       }, 
       errors: [],
       isDatemMoreThanToday: "",
-      // examdetail 
       examDetails: []
     };
   },
@@ -205,7 +174,7 @@ export default {
     if (newVal !== oldVal) {
       await this.openDialog(newVal);
       console.log(newVal);
-      const date1 = new Date(newVal); // Fixed reference to newVal
+      const date1 = new Date(newVal); 
       const offset = date1.getTimezoneOffset();
       const localDate = new Date(date1.getTime() - (offset * 60000));
       const formattedDate = localDate.toISOString().split('T')[0];
@@ -218,70 +187,61 @@ export default {
     showExamDateDetail(date){
 
     },
-    // hoverDate(day) {
-    //   console.log(day.date); // แสดงผลในคอนโซลเพื่อตรวจสอบ
-    //   this.hoverDate = day.date; // อัปเดตค่าให้กับ property ของ data
-    // },
-    // handleMouseover(event) {
-    //   // ตรงนี้คุณสามารถเพิ่ม logic ที่ต้องการจัดการเมื่อเกิดการ mouseover
-    //   // ตัวอย่าง: อาจแสดงข้อมูลหรือค่าเกี่ยวกับวันที่ถูก hover
-    //   console.log(this.hoverDate)
-    // },
     openExamBook() {
-      if (this.isDatemMoreThanToday === "1") {
-        this.dialog = true;
+    if (this.isDatemMoreThanToday === "2") { 
+      Swal.fire({
+        icon: 'error',
+        title: 'Sorry...',
+        text: 'Please reserve your exam date at least 1 day in advance.',
+      });
+      this.dialog = false; 
+    } else if (this.isDatemMoreThanToday === "0") { 
+      Swal.fire({
+        icon: 'error',
+        title: 'Sorry...',
+        text: 'Cannot select a date in the past.',
+      });
+      this.dialog = false; 
+    } else if (this.isDatemMoreThanToday === "1") { 
+      this.dialog = true; 
+    } else {
+      console.error('Unexpected value for isDatemMoreThanToday:', this.isDatemMoreThanToday);
+      this.dialog = false; 
+    }
+  },
 
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Sorry...',
-          text: 'Cannot select a date in the past.',
-        });
-          this.dialog = false;
-      }
-        
-      
 
-    },
+
     openDialog(date) {
       console.log("open dialog");
-      console.log(date); // เพื่อตรวจสอบว่ามีการส่งอะไรมา
+      console.log(date); 
       this.tempDate = date;
-      const date1 = new Date(this.tempDate); //date mี่ส่งมาจาก carlendar
-      const today = new Date(); // วันที่ปัจจุบัน
-      today.setHours(0, 0, 0, 0); // รีเซ็ตเวลาในวันปัจจุบัน
+      const selectedDate = new Date(this.tempDate); // Date from the calendar
+      const today = new Date(); // Today's date
+      today.setHours(0, 0, 0, 0); // Reset time to start of today
 
-        // ตรวจสอบว่าวันที่เลือกเป็นวันที่ในอนาคตหรือเท่ากับวันปัจจุบัน
-      // if (date1 >= today) {
-      //   const formattedDate = date1.toISOString().split('T')[0];
-      //   console.log(formattedDate);
-      //   this.examDateForm.date = formattedDate;
-      //   console.log("ExamDate: "+ this.examDateForm.date)
-      //   this.isDatemMoreThanToday = "1"
-
-      // } else {
-      //   this.isDatemMoreThanToday = "0"
-
-      // }
-      if (date1 >= today) {
-        const offset = date1.getTimezoneOffset();
-        const localDate = new Date(date1.getTime() - (offset * 60000));
+      // Compare dates using their time value
+      if (selectedDate.setHours(0, 0, 0, 0) === today.getTime()) {
+        // If it is today, set the flag to indicate today's date
+        this.isDatemMoreThanToday = "2"; // date = today
+      } else if (selectedDate > today) {
+        // If the selected date is in the future
+        const offset = selectedDate.getTimezoneOffset();
+        const localDate = new Date(selectedDate.getTime() - (offset * 60000));
         const formattedDate = localDate.toISOString().split('T')[0];
         console.log(formattedDate);
         this.examDateForm.date = formattedDate;
-        console.log("ExamDate: "+ this.examDateForm.date);
-        this.isDatemMoreThanToday = "1";
+        console.log("ExamDate: " + this.examDateForm.date);
+        this.isDatemMoreThanToday = "1"; // date > today
       } else {
-        this.isDatemMoreThanToday = "0";
+        // If the selected date is in the past
+        this.isDatemMoreThanToday = "0"; // date < today
       }
-        
     },
     closeDialog() {
       this.dialog = false;
     },
     updateTime(event) {
-      // When the user selects a time, update the selectedTime data property
-      // this.timePickerDialog = true;
       this.selectedTime 
       = event.target.value;
     },
@@ -289,7 +249,6 @@ export default {
       this.timeEndPickerDialog = false;
     },
     saveStartTime() {
-      // You can handle saving the time here if needed
       this.timeStartPickerDialog = false;
     },
     logout() {
@@ -327,100 +286,115 @@ export default {
     showSubject(item) {
       return { title: item.subjectName + " (" + item.subjectCode + ")" };
     },
-    async saveDetails() {
-      this.errors = []
-      this.dialog = false;
-      this.examDateForm.startTime = this.selectedStartTime;
-      this.examDateForm.endTime = this.selectedEndTime;
-      let subjectId = this.selectedSubject
-      this.examDateForm.subject = subjectId.id;
+    isTimeSlotAvailable(startTime, endTime, date) {
+      const start = new Date(`${date}T${startTime}`);
+      const end = new Date(`${date}T${endTime}`);
 
-      console.log("this examDateForm " + this.examDateForm.startTime + " / " + this.examDateForm.endTime);
-      console.log("this examSubject " + this.examDateForm.subject)
-
-      if (!this.examDateForm.description) {
-        this.errors.push('Description is required.');
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Description is required.',
-          confirmButtonColor: '#d33', 
-        });
-        return; 
-      }
-      if (!this.selectedStartTime) {
-        this.errors.push('Start Time is required.');
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Start Time is required.',
-          confirmButtonColor: '#d33', 
-        });
-        return; 
-      }
-      if (!this.selectedEndTime) {
-        this.errors.push('End Time is required.');
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'End Time is required.',
-          confirmButtonColor: '#d33', 
-        });
-        return; 
-      }
-
-      let startTime = new Date(`2022-01-01T${this.selectedStartTime}:00`);
-      let endTime = new Date(`2022-01-01T${this.selectedEndTime}:00`);
-      let startHour = startTime.getHours();
-      let endHour = endTime.getHours();
-      if (startHour < 8 || endHour > 18 || (endHour === 18 && endTime.getMinutes() > 0)) {
-      this.errors.push('Exams must be scheduled between 08:00 AM and 06:00 PM.');
-      Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Exams must be scheduled between 08:00 AM and 06:00 PM.',
-      confirmButtonColor: '#d33',
-        });
-        return;
-      }
-      
-      let duration = (endTime - startTime) / (1000 * 60 * 60); 
-      if (duration < 1) {
-          this.errors.push('The exam duration must be at least 1 hour.');
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'The exam duration must be at least 1 hour.',
-            confirmButtonColor: '#d33',
-          });
-          return;
-        }
-      if (this.errors.length === 0) {
-      await axios.post('/examdetail/', this.examDateForm)
-        .then(response => {
-          this.fetchExamDetails(this.examDateForm.date)
-          Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: 'Successfully added a exam time!',
-          });
-          this.resetForm(); 
-          this.dialog = false;
-        })
-        .catch(error => {
-          console.log('error', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'This subject has already been reserved for exams.',
-
-         });
+      return !this.examDetails.some(exam => {
+        const examStart = new Date(`${exam.date}T${exam.startTime}`);
+        const examEnd = new Date(`${exam.date}T${exam.endTime}`);
+        return (start < examEnd && end > examStart);
       });
-      }
     },
-    resetForm() {
-      
-    }
+  async saveDetails() {
+  this.errors = [];
+  this.dialog = false;
+  this.examDateForm.startTime = this.selectedStartTime;
+  this.examDateForm.endTime = this.selectedEndTime;
+  let subjectId = this.selectedSubject;
+  this.examDateForm.subject = subjectId.id;
+
+  console.log("this examDateForm " + this.examDateForm.startTime + " / " + this.examDateForm.endTime);
+  console.log("this examSubject " + this.examDateForm.subject);
+
+  if (!this.validateForm()) return; // ตรวจสอบเงื่อนไขต่างๆ
+
+  let startTime = new Date(`2022-01-01T${this.selectedStartTime}:00`);
+  let endTime = new Date(`2022-01-01T${this.selectedEndTime}:00`);
+  
+  if (!this.validateTime(startTime, endTime)) return; // ตรวจสอบเวลา
+
+  await axios.post('/examdetail/', this.examDateForm)
+    .then(response => {
+      this.fetchExamDetails(this.examDateForm.date);
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Successfully added an exam time!',
+      });
+      this.resetForm(); 
+      this.dialog = false;
+    })
+    .catch(error => {
+      console.log('error', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'This subject has already been reserved for exams.',
+      });
+    });
+},
+
+validateForm() {
+  if (!this.examDateForm.description) {
+    this.showError('Description is required.');
+    return false;
+  }
+  if (!this.selectedStartTime) {
+    this.showError('Start Time is required.');
+    return false;
+  }
+  if (!this.selectedEndTime) {
+    this.showError('End Time is required.');
+    return false;
+  }
+  if (!this.isTimeSlotAvailable(this.selectedStartTime, this.selectedEndTime, this.examDateForm.date)) {
+    this.showError('This exam time slot has already been reserved.');
+    return false;
+  }
+  return true;
+},
+
+validateTime(startTime, endTime) {
+  let startHour = startTime.getHours();
+  let endHour = endTime.getHours();
+  if (startHour < 8 || endHour > 18 || (endHour === 18 && endTime.getMinutes() > 0)) {
+    this.showError('Exams must be scheduled between 08:00 AM and 06:00 PM.');
+    return false;
+  }
+
+  let duration = (endTime - startTime) / (1000 * 60 * 60); 
+  if (duration < 1) {
+    this.showError('The exam duration must be at least 1 hour.');
+    return false;
+  }
+  return true;
+},
+
+showError(message) {
+  this.errors.push(message);
+  Swal.fire({
+    icon: 'error',
+    title: 'Error',
+    text: message,
+    confirmButtonColor: '#d33',
+  });
+  this.resetForm(); 
+},
+
+resetForm() {
+  this.selectedStartTime = '';
+  this.selectedEndTime = '';
+  this.selectedSubject = this.subjects.length > 0 ? this.subjects[0] : {};
+
+  this.examDateForm = {
+    subject: '',
+    description: '',
+    startTime: '',
+    endTime: '',
+    date: ''
+  };
+}
   }
 };
 </script>
@@ -429,18 +403,17 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 .ExamTime {
-  background-color: white; /* Set the background color to white */
-  padding: 16px; /* Add some padding around the content */
-  border-radius: 4px; /* Optional: adds rounded corners to the background */
-  /* Add additional styling as needed */
+  background-color: white; 
+  padding: 16px; 
+  border-radius: 4px; 
 }
 
 .new-div {
   margin-top: 15px;
-  max-height: 300px; /* Set a fixed maximum height */
-  overflow-y: auto; /* Add vertical scroll */
-  overflow-x: hidden; /* Hide horizontal scroll */
-  word-break: break-word; /* Prevent horizontal overflow */
+  max-height: 300px; 
+  overflow-y: auto; 
+  overflow-x: hidden; 
+  word-break: break-word; 
 }
 
 .examDetail {

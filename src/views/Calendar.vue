@@ -2,7 +2,7 @@
   <v-container>
     <v-row justify="center">
       <v-col cols="12" sm="4">
-        <div class="notes-section">
+        <div class="notes-section full-height">
           <div class="user-info">
           <span>Student : {{ userName }}</span>
           <v-btn small @click="logout" class="logout-button">Log Out</v-btn>
@@ -35,7 +35,7 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-card class="notes-list-card full-width"  outlined flat>
+          <v-card class="notes-list-card full-width tall"  outlined flat>
 
           <v-card-title>My notes</v-card-title>
           <v-card-text class="scrollable-notes-list">
@@ -66,23 +66,25 @@
         </div>
       </v-col>
       <v-col cols="12" sm="8">
-        <v-card class="schedule-section">
-          <v-card-title class="text-h5 grey lighten-2">My Schedule</v-card-title>
+        <v-card class="schedule-section tall-section">
+          <v-card-title class="text-h5 grey lighten-2">My exam schedule</v-card-title>
           <v-card-text>
             <v-simple-table>
             <template v-slot:default>
               <thead>
                 <tr>
-                  <th class="text-left">Subject</th>
-                  <th class="text-left">Description</th>
-                  <th class="text-left">Start Time</th>
-                  <th class="text-left">End Time</th>
-                  <th class="text-left">Date</th>
+                  <th class="text-left large-text">Subject</th>
+                  <th class="text-left large-text">Teacher</th>
+                  <th class="text-left large-text">Description</th>
+                  <th class="text-left large-text">Start Time</th>
+                  <th class="text-left large-text">End Time</th>
+                  <th class="text-left large-text">Date</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="exam in exams" :key="exam.id">
                   <td>{{ exam.subjectExamDetail.subjectName }} ({{ exam.subjectExamDetail.subjectCode }})</td>
+                  <td>{{ exam.subjectExamDetail.teacherSubject.firstname }} {{ exam.subjectExamDetail.teacherSubject.lastname }}</td>
                   <td>{{ exam.description }}</td>
                   <td>{{ exam.startTime }}</td>
                   <td>{{ exam.endTime }}</td>
@@ -162,44 +164,20 @@ export default {
           axios.get(`/examdetail/?subject=${subject.id}`)
         ));
 
-        // Flatten the array of arrays into a single array with all exam objects
         this.exams = examsResponses.map(res => res.data).flat();
+        this.exams.sort((a, b) => new Date(a.date) - new Date(b.date));
       } catch (error) {
         console.error('Error fetching student exam data:', error);
         throw error;
       }
     },
-    // async fetchExamDetailStudent() {
-    //   try {
-    //     this.userStore.initStore();
-    //     const studentId = this.userStore.user.id;
-    //     this.studentId = studentId;
 
-    //     // ดึงข้อมูลวิชาที่นิสิตลงทะเบียนแบบ asynchronous
-    //     const subjectsResponse = await axios.get(`/studentEnrolled/?student=${studentId}`);
-    //     this.subjects = subjectsResponse.data;
-        
-    //     // ดึงข้อมูลการสอบสำหรับวิชาที่ลงทะเบียนทั้งหมดแบบ asynchronous
-    //     const examsPromises = this.subjects.map(async (subject) => {
-    //       const examResponse = await axios.get(`/examdetail/?subject=${subject.id}`);
-    //       return examResponse.data; // สมมติว่าการตอบสนองมีข้อมูลการสอบ
-    //     });
-
-    //     const exams = await Promise.all(examsPromises);
-    //     console.log(exams); // ตัวอย่างการแสดงผลข้อมูลการสอบ
-    //     this.exams = this.exams.flat();
-
-    //   } catch (error) {
-    //     console.error('Error fetching student exam data:', error);
-    //     throw error;
-    //   }
-    // },
     resetForm() {
     this.notepadForm.description = '';
     this.notepadForm.subject = '';
     this.isEditMode = false;
     this.editNoteId = null;
-  },
+    },
 
     saveNote() {
       console.log(this.selectSubject)
@@ -271,11 +249,6 @@ export default {
       })
       .catch(error => {
         console.error('Error updating note', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to update note',
-        });
       });
     }
         else {
@@ -290,19 +263,6 @@ export default {
     goToChangePassword() {
       this.$router.push({ name: 'ChangePassword' });
     },
-    // fetchSubjectEnrolled() {
-    //   this.userStore.initStore(); 
-    //   const studentId = this.userStore.user.id;
-    //   console.log("Student ID: ", studentId);
-    //   this.notepadForm.student = studentId
-    //   axios.get(`/studentEnrolled/?student=${studentId}`)
-    //     .then(response => {
-    //       this.subjects = response.data.map(subject => subject.subjectEnrolled);
-    //     })
-    //     .catch(error => {
-    //       console.error('Could not fetch subjects', error);
-    //     });
-    // },
     fetchSubjectEnrolled() {
     this.userStore.initStore(); 
     const studentId = this.userStore.user.id;
@@ -312,7 +272,7 @@ export default {
         this.subjects = response.data.map(subject => subject.subjectEnrolled);
         // Set the default selection for the v-select
         if (this.subjects.length > 0) {
-          this.notepadForm.subject = this.subjects[0].id; // assuming 'id' is the property to bind
+          this.notepadForm.subject = this.subjects[0].id; 
         }
       })
       .catch(error => {
@@ -462,7 +422,40 @@ export default {
 }
 
 .logout-button {
-  color: #d32f2f; /* Red color for the log out button */
+  color: #d32f2f; 
+}
+
+.tall {
+  height: 400px; 
+}
+
+.tall-section {
+  height: 550px;
+}
+
+.schedule-section {
+  padding-top: 24px; 
+}
+
+.schedule-section  .v-card-title {
+  font-size: 1.9em; 
+  padding-top: 1.0em; 
+  margin-top: -0.3em; 
+  font-weight: bold;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.large-text {
+  font-size: 1.2em; 
+}
+
+.schedule-section td {
+  font-size: 1.0em; 
+}
+
+.schedule-section .v-card-text {
+  overflow-y: auto; 
+  max-height: 470px; 
 }
 
 </style>

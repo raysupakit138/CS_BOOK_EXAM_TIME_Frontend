@@ -65,19 +65,8 @@ export default {
     async cancelExam(exam) {
       const examDate = new Date(exam.date);
       const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0); // Set to start of current day
+      currentDate.setHours(0, 0, 0, 0); 
 
-      // Check if the exam date is in the past
-      if (examDate < currentDate) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Sorry...',
-          text: 'Cannot cancel exams that are scheduled in the past.'
-        });
-        return;
-      }
-
-      // Show confirmation dialog using SweetAlert2
       Swal.fire({
         title: 'Are you sure?',
         text: "Are you sure you want to cancel the exam date?",
@@ -140,16 +129,16 @@ export default {
 }
 
 h1 {
-  font-size: 2.5em; /* Larger font size */
-  font-family: 'Montserrat', sans-serif; /* Montserrat font */
-  font-weight: 700; /* Optional: makes the font bold */
-  margin-bottom: 0.5em; /* Optional: adds space below the heading */
+  font-size: 2.5em; 
+  font-family: 'Montserrat', sans-serif; 
+  font-weight: 700; 
+  margin-bottom: 0.5em; 
 }
 
 .back-button-container {
-  position: fixed; /* Position it relative to the viewport */
-  bottom: 20px; /* 20px from the bottom */
-  left: 20px; /* 20px from the left */
+  position: fixed; 
+  bottom: 20px; 
+  left: 20px; 
 }
 
 .back-button {
@@ -188,14 +177,14 @@ button:hover {
 th, td {
   border: 1px solid #ddd;
   text-align: left;
-  padding: 20px; /* Remove padding to allow button to fill cell */
-  vertical-align: middle; /* Center content vertically */
+  padding: 20px; 
+  vertical-align: middle; 
 }
 
 .delete-button {
-  height: 100%; /* Fill the height */
-  width: 100%; /* Fill the width */
-  border-radius: 0; /* Adjust as needed for your design */
+  height: 100%; 
+  width: 100%; 
+  border-radius: 0; 
   background-color: #ff4d4d;
   color: white;
   border: none;
@@ -206,26 +195,26 @@ th, td {
 
 .delete-button .button-text {
   display: inline-block;
-  margin-right: 8px; /* Space between text and icon */
-  vertical-align: middle; /* Align text with icon */
+  margin-right: 8px; 
+  vertical-align: middle; 
 }
 
 .delete-button:hover {
-  background-color: #010101; /* Darker red on hover */
+  background-color: #010101; 
 }
 
 .bottom-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: fixed; /* Fix the container to the bottom */
-  bottom: 0; /* Align to the bottom */
-  left: 0; /* Align to the left */
-  right: 0; /* Align to the right */
-  background-color: #333; /* Dark background */
-  color: white; /* Light text color */
-  padding: 10px 20px; /* Adjust padding as necessary */
-  box-shadow: 0 -2px 5px rgba(0,0,0,0.3); /* Shadow for depth */
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  right: 0; 
+  background-color: #333; 
+  color: white; 
+  padding: 5px 9px; 
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.3); 
 }
 
 .exam-total {

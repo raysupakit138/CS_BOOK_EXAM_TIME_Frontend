@@ -11,27 +11,44 @@
 
 <script>
 import { useUserStore } from '@/stores/user'
+
 export default {
   setup() {
     const userStore = useUserStore();
     console.log(userStore.user.username)
     return {
-       userStore,
-       userName: userStore.user.username,
-
-       };
+      userStore,
+      userName: userStore.user.username,
+    };
   },
   beforeCreate() {
-      this.userStore.initStore()
+    this.userStore.initStore();
 
+
+    if (!localStorage.getItem('user_id') ||
+        !localStorage.getItem('user_prefix') ||
+        !localStorage.getItem('user.access')) {
+      this.disableInteraction();
+    }
   },
   methods: {
     logout() {
       this.userStore.removeToken();
       this.$router.push('/login');
-    }
+    },
+    disableInteraction() {
+      const blocker = document.createElement('div');
+      blocker.style.position = 'fixed';
+      blocker.style.top = '0';
+      blocker.style.left = '0';
+      blocker.style.width = '100vw';
+      blocker.style.height = '100vh';
+      blocker.style.zIndex = '10000';
+      blocker.style.background = 'rgba(0, 0, 0, 0.5)';
+      document.body.appendChild(blocker);
+    },
   }
-} 
+}
 </script>
 
 <style>

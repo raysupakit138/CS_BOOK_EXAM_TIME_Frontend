@@ -77,6 +77,7 @@ export default {
 
                   });                               
                   } else {
+                      this.showErrorAlert('Your old password is incorrect.');
                       const data = JSON.parse(response.data.message)
 
                       for (const key in data){
